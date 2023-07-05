@@ -9,7 +9,8 @@
 
 (defvar *static-data-to-publish*        ; ({path content-type file}*)
   '(("/favicon.ico" "image/png" "favicon.png")
-    ("/htmx.js" "text/javascript" "unpkg.com_htmx.org@1.9.2_dist_htmx.min.js")))
+    ("/htmx.js" "text/javascript" "unpkg.com_htmx.org@1.9.2_dist_htmx.min.js")
+    ("/styles.css" "text/css" "styles.css")))
 
 
 (defun favicon-source (&optional (index 0))
@@ -22,6 +23,12 @@
   (destructuring-bind (file type *)
       (nth index *static-data-to-publish*)
     (htm* (:script :src file :type type))))
+
+
+(defun css-source (&optional (index 2))
+  (destructuring-bind (file type *)
+      (nth index *static-data-to-publish*)
+    (htm* (:link :rel "stylesheet" :type type :href file))))
 
 
 (defun start-bag (&key (port 9090) (static-data-to-publish *static-data-to-publish*))
@@ -43,7 +50,7 @@
         (:meta :charset "utf-8")
         (:title ,title)
         (favicon-source)
-        ;; (css-source-file "styles.css")
+        (css-source)
         )
        (:body
         ,@body
@@ -53,14 +60,19 @@
 (define-url-function index
     (request)
   (index-page (:title "web demo")
-    (:div :class "app"
+
+    (:div :id "content" :class "gtfl")
+
+    (:div :class "app" :class "gtfl"
           (:button :hx-post "/hello?lixo=293847AAAXXX" :hx-swap "outerHTML" "hello"))))
 
 
 (define-url-function hello
     (request ;; (lixo string)
              )
-  (tree-drawing-example))
+  (htm*
+    (:div :id "content" :class "gtfl"
+    (tree-drawing-example))))
 
 
 (defun draw-node-with-children (node children &key (right-to-left nil) (color "#888") (width "10px") (line-width "1px") (style "solid"))

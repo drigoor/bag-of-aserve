@@ -1,0 +1,16 @@
+table.tree { border-collapse:collapse }
+table.tree > tbody > tr > td { padding:0px;vertical-align:middle; }
+table.tree div.child { position:relative; }
+table.tree div.vl-top { height:50%;position:absolute;bottom:0px; }
+table.tree div.vl-middle { height:100%;position:absolute;top:0px; }
+table.tree div.vl-bottom { height:50%;position:absolute;top:0px; }
+table.tree div.vl-left { left:0px; }
+table.tree div.vl-right { right:0px; }
+
+
+
+.gtfl, .gtfl td { font-size: 9pt; font-family: Helvetica Neue, Helvetica, Arial; }
+.gtfl a { color: #000066; text-decoration:none; }
+.gtfl a:hover {text-decoration: underline}
+.gtfl a.button { font-size: 8pt;}
+.gtfl hr { border:0px;color:#777;background-color:#777;height:1px;width:100%;}
