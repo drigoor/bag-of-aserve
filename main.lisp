@@ -4,77 +4,63 @@
 (setf (who:html-mode) :html5)
 
 
-(defparameter *htmx-js*
-  (uiop:merge-pathnames* "static/unpkg.com_htmx.org@1.9.2_dist_htmx.min.js" (uiop:getcwd)))
+(defvar *default-static-pathname* (uiop:merge-pathnames* "static/" (uiop:getcwd)))
 
 
-(defparameter *favicon*
-  (uiop:merge-pathnames* "static/favicon.png" (uiop:getcwd)))
+(defvar *static-data-to-publish*        ; ({path content-type file}*)
+  '(("/favicon.ico" "image/png" "favicon.png")
+    ("/htmx.js" "text/javascript" "unpkg.com_htmx.org@1.9.2_dist_htmx.min.js")))
 
 
-(defun start-bag (&optional (port 9090))
-  (publish-file :path "/htmx.js" :file *htmx-js* :content-type "text/javascript")
-  (publish-file :path "/favicon.ico" :file *favicon* :content-type "image/png")
+(defun favicon-source (&optional (index 0))
+  (destructuring-bind (file type *)
+      (nth index *static-data-to-publish*)
+    (htm* (:link :rel "icon" :type type :href file))))
+
+
+(defun js-source (&optional (index 1)) ; index in the *static-data-to-publish*
+  (destructuring-bind (file type *)
+      (nth index *static-data-to-publish*)
+    (htm* (:script :src file :type type))))
+
+
+(defun start-bag (&key (port 9090) (static-data-to-publish *static-data-to-publish*))
+  (mapc #'(lambda (data)
+            (destructuring-bind (path content-type file) data
+              (publish-file :path path
+                            :content-type content-type
+                            :file (uiop:merge-pathnames* file *default-static-pathname*))))
+        static-data-to-publish)
   (net.aserve::debug-on :notrap)
   (start :port port))
 
 
-(defmacro js-source-file (filename)
-  `(htm (:script :src ,filename :type "text/javascript")))
-
-
-;; (defmacro css-source-file (filename)
-;;   `(htm (:link :href ,filename :rel "stylesheet")))
-
-
-(defmacro base-page ((&key title) &body body)
-  `(who ; ref: https://stackoverflow.com/questions/35102637/undefined-function-after-macroexpansion (search by "cl-who undefined function: :BODY")
-    (:html
-      :lang "en"
-      (:head
-       (:meta :charset "utf-8")
-       (:title ,title)
-       ;; (css-source-file "styles.css")
-       )
-      (:body
-       ,@body
-       (js-source-file "htmx.js")))))
+(defmacro index-page ((&key title) &body body)
+  `(html*
+     (:html
+       :lang "en"
+       (:head
+        (:meta :charset "utf-8")
+        (:title ,title)
+        (favicon-source)
+        ;; (css-source-file "styles.css")
+        )
+       (:body
+        ,@body
+        (js-source)))))
 
 
 (define-url-function index
     (request)
-  (base-page (:title "web demo")
+  (index-page (:title "web demo")
     (:div :class "app"
-          (:button :hx-post "/hello?lixo=2435622" :hx-swap "outerHTML" "hello"))))
-
-
-(defun lixo (lixo)
-  (who
-   (:div
-    :style "padding:4px;border:1px solid #888;margin-top:4px;margin-bottom:4px;background-color:#eee;"
-    (str (format nil "--> ~a" lixo)))))
+          (:button :hx-post "/hello?lixo=293847AAAXXX" :hx-swap "outerHTML" "hello"))))
 
 
 (define-url-function hello
-    (request (lixo string))
-  (lixo lixo)
-
-  (who
-   :br)
-
-  (loop for (link . title) in '(("http://zappa.com/" . "Frank 1 Zappa")
-                                ("http://marcusmiller.com/" . "Marcus 2 Miller")
-                                ("http://www.milesdavis.com/" . "Miles 3 Davis"))
-        do (who (:a :href link
-                    (:b (str title)))
-             :br))
-
-  (who
-    :br)
-
+    (request ;; (lixo string)
+             )
   (tree-drawing-example))
-
-
 
 
 (defun draw-node-with-children (node children &key (right-to-left nil) (color "#888") (width "10px") (line-width "1px") (style "solid"))
@@ -87,17 +73,17 @@
   (labels ;; these will be called in a different order depending on right-to-left
       ((node ()
          ;; a td for the parent node
-         (who (:td (funcall node))))
+         (htm* (:td (funcall node))))
        (h-line ()
          ;; a single horizontal line to and from the vertical connector
          (when children
-           (who
+           (htm*
              (:td (:div :style (conc "border-top:" line-width " " style " "
                                      color ";width:" width))))))
        (v-line (pos)
          ;; the vertical connector between the horizontal lines
          (unless (= (length children) 1) ;; only one child -> no vertical line
-           (who
+           (htm*
              (:div
               :class (conc (cond ((= pos 1) "vl-top")
                                  ((= pos (length children)) "vl-bottom")
@@ -106,14 +92,14 @@
               :style (conc "border-left:" line-width " " color " " style)))))
        (child (child)
          ;; a td for a child node"
-         (who (:td (funcall child))))
+         (htm* (:td (funcall child))))
        (children ()
          (when children
-           (who
+           (htm*
              (:td
               (loop for child in children
                     for i from 1
-                    do (who
+                    do (htm*
                          (:div
                           :class "child"
                           :style (when right-to-left "clear:both;float:right;")
@@ -124,7 +110,7 @@
                                         (progn (child child) (h-line))
                                         (progn (h-line) (child child))))))
                           (v-line i)))))))))
-    (who
+    (htm*
       (:div
        :style (when right-to-left "clear:both;float:right;")
        (:table
@@ -135,7 +121,6 @@
               (progn (children) (h-line) (node))
               (progn (node) (h-line) (children)))))))
       (:div :style "clear:both"))))
-
 
 
 (defun tree-drawing-example ()
@@ -150,12 +135,11 @@
                          ("second out of three children")
                          ("third out of three children"))
                         ("child node two with one child"
-                         ("very long text. very long text. very long text. very long text. very long text. very long text. very long text. very long text. "))))
-        )
+                         ("very long text. very long text. very long text. very long text. very long text. very long text. very long text. very long text. ")))))
     (labels (;; this makes a div with a border for each node
              (draw-node (content)
-               (who (:div :style "padding:4px;border:1px solid #888;margin-top:4px;margin-bottom:4px;background-color:#eee;"
-                          (princ content))))
+               (htm* (:div :style "padding:4px;border:1px solid #888;margin-top:4px;margin-bottom:4px;background-color:#eee;"
+                           (str (princ content)))))
              ;; recursive tree drawing
              (draw-tree (tree)
                (draw-node-with-children
@@ -168,7 +152,7 @@
                         (cdr tree))
                 :right-to-left right-to-left :color color
                 :width width :line-width line-width :style style)))
-      (who
+      (htm*
         (:h2 "tree drawing example")
         (:p "resize your browser window to see the dynamic tree
                     rendering in action.")
@@ -217,6 +201,9 @@
 
 ;; mklink /J C:\home\quicklisp\local-projects\gtfl C:\home\projects\lisp\_externals\gtfl
 
+
+;; ref: https://stackoverflow.com/questions/35102637/undefined-function-after-macroexpansion
+;;    (search by: "cl-who undefined function: :BODY")
 
 
 ;; later reading

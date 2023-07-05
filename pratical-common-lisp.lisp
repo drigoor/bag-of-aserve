@@ -109,8 +109,13 @@
 (defvar *http-stream* nil) ; dynamically binded in `define-url-function'
 
 
-(defmacro who (&body body)
+(defmacro html* (&body body)
   `(who:with-html-output (*http-stream* nil :prologue t :indent t)
+     ,@body))
+
+
+(defmacro htm* (&body body)
+  `(who:with-html-output (*http-stream* nil :prologue nil :indent t)
      ,@body))
 
 
