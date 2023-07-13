@@ -3,6 +3,7 @@
 
 (defpackage #:bag-of-aserve
   (:use #:cl
+        #:alexandria
         #:net.aserve
         #:cl-who
         ;; #:com.gigamonkeys.macro-utilities

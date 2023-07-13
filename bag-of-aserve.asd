@@ -1,6 +1,8 @@
 (asdf:defsystem #:bag-of-aserve
   :serial t
-  :depends-on (#:aserve
+  :depends-on (#:alexandria
+               #:closer-mop
+               #:aserve
                #:cl-who)
   :components (;; (:module "pratical-common-lisp"
                ;;  :components ((:file "packages")
