@@ -82,23 +82,39 @@
 
 
     (:div :id "content" :class "gtfl"
-          (str (let ((example-tree '("description"
-                                     ("asd") ("asdasd")
-                                     ("ehllo")
-                                     ("asd" ("asd"))
-                                     ("asdasd" ("asd990" ("23223"))))
-                                   ;; '("top node."
-                                   ;;   ("child node one with three children"
-                                   ;;    ("first out of three children")
-                                   ;;    ("second out of three children")
-                                   ;;    ("third out of three children"))
-                                   ;;   ("child node two with one child"
-                                   ;;    ("very long text. very long text. very long text. very long text. very long text. very long text. very long text. very long text. ")))
-                                   ))
+          (str (let (;; (example-tree '("description"
+                     ;;                 ("asd") ("asdasd")
+                     ;;                 ("ehllo")
+                     ;;                 ("asd" ("asd"))
+                     ;;                 ("asdasd" ("asd990" ("23223"))))
+                     ;;               ;; '("top node."
+                     ;;               ;;   ("child node one with three children"
+                     ;;               ;;    ("first out of three children")
+                     ;;               ;;    ("second out of three children")
+                     ;;               ;;    ("third out of three children"))
+                     ;;               ;;   ("child node two with one child"
+                     ;;               ;;    ("very long text. very long text. very long text. very long text. very long text. very long text. very long text. very long text. ")))
+                     ;;               )
+                     )
                  (my-tree-drawing-example (system-to-tree :hunchentoot)))))
 
-
     ))
+
+
+(defun slot-keyword-and-value (system slot)
+  (let* ((name (closer-mop:slot-definition-name slot))
+         (value (slot-value system name)))
+    (when value
+      (list (make-keyword name)
+            value))))
+
+
+(defun system-direct-slots (system-name)
+  (let* ((system (asdf:find-system system-name))
+         (slots (closer-mop:class-direct-slots (class-of system))))
+    (mapcan #'(lambda (slot)
+                (slot-keyword-and-value system slot))
+            slots)))
 
 
 (defun system-to-tree (system-name)
@@ -540,26 +556,6 @@
 </html>
 
 |#
-
-
-
-
-
-(defun slot-keyword-and-value (system slot)
-  (let* ((name (closer-mop:slot-definition-name slot))
-         (value (slot-value system name)))
-    (when value
-      (list (make-keyword name)
-            value))))
-
-
-(defun system-direct-slots (system-name)
-  (let* ((system (asdf:find-system system-name))
-         (slots (closer-mop:class-direct-slots (class-of system))))
-    (mapcan #'(lambda (slot)
-                (slot-keyword-and-value system slot))
-            slots)))
-
 
 
 ;; (defun all-direct-slots (class)

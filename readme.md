@@ -1,5 +1,8 @@
 # Experiments with lisp and web
 
++ using htmx to provide htm to the front-end
++ use ideas / code of gtfl
+
 + [GTFL](https://martin-loetzsch.de/gtfl/index.html) - graphical terminal for lisp
 + [asdf-viz](https://github.com/guicho271828/asdf-viz) - ASDF system dependency visualizer
 
