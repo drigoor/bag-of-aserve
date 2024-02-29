@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!--
+    fit graph from: https://stackoverflow.com/questions/54758746/correctly-scale-dot-graphic
+    fit whole page from: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_div_full_height
+    graph example from: https://dreampuf.github.io/GraphvizOnline/#digraph%20G%20%7B%0A%0A%20%20subgraph%20cluster_0%20%7B%0A%20%20%20%20style%3Dfilled%3B%0A%20%20%20%20color%3Dlightgrey%3B%0A%20%20%20%20node%20%5Bstyle%3Dfilled%2Ccolor%3Dwhite%5D%3B%0A%20%20%20%20a0%20-%3E%20a1%20-%3E%20a2%20-%3E%20a3%3B%0A%20%20%20%20label%20%3D%20%22process%20%231%22%3B%0A%20%20%7D%0A%0A%20%20subgraph%20cluster_1%20%7B%0A%20%20%20%20node%20%5Bstyle%3Dfilled%5D%3B%0A%20%20%20%20b0%20-%3E%20b1%20-%3E%20b2%20-%3E%20b3%3B%0A%20%20%20%20label%20%3D%20%22process%20%232%22%3B%0A%20%20%20%20color%3Dblue%0A%20%20%7D%0A%20%20start%20-%3E%20a0%3B%0A%20%20start%20-%3E%20b0%3B%0A%20%20a1%20-%3E%20b3%3B%0A%20%20b2%20-%3E%20a3%3B%0A%20%20a3%20-%3E%20a0%3B%0A%20%20a3%20-%3E%20end%3B%0A%20%20b3%20-%3E%20end%3B%0A%0A%20%20start%20%5Bshape%3DMdiamond%5D%3B%0A%20%20end%20%5Bshape%3DMsquare%5D%3B%0A%7D
+
+
+    from: https://github.com/magjac/d3-graphviz/blob/master/examples/demo.html
+    editor: https://github.com/magjac/graphviz-visual-editor
+  -->
+
+<head>
+  <style>
+
+    /* fill all the window */
+    /* from: https://stackoverflow.com/questions/1575141/how-to-make-a-div-100-height-of-the-browser-window */
+    div.graph {
+        position: fixed; top: 10px; left: 10px; bottom: 10px; right: 10px;
+        padding: 2px; /* check below (x) */
+        border: 1px solid black;
+        /* background: tomato; /\* for DEBUG *\/ */
+    }
+
+    /* tomato */
+    /* papayawhip */
+
+  </style>
+</head>
+
+<body onload="renderGraph()"  onresize="renderGraph()">
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://unpkg.com/@hpcc-js/wasm@0.3.13/dist/index.min.js"></script>
+  <script src="https://unpkg.com/d3-graphviz@3.1.0/build/d3-graphviz.js"></script>
+
+  <div id="graph" class="graph"></div>
+
+  <script>
+
+    const graphSrc = `
+digraph G {
+  rankdir=LR
+  ordering="out"
+
+  node [shape="box", style="filled" fillcolor="#eeeeee"]
+  edge [fontcolor="lightgrey"]
+
+  fnX [id="NodeId1" label="N1" fillcolor="#d62728" shape="box", tooltip="that who reamins"]
+  fnY [id="NodeId2" label="N2" fillcolor="#1f77b4"]
+  fn2 [label="2" shape="box",fillcolor="antiquewhite:aquamarine"]
+  fn3 [id="NodeId3", height=1, width=1, label="N3" fillcolor="#2ca02c"]
+
+  fnX -> fn1 [label="1" color="red"]
+  fnX -> fn2
+  fnX -> fn3 [label="3"]
+
+  fnY -> fn2
+  fnY -> fn7
+
+  fn1 -> fn4 [label="1"]
+  fn1 -> fn6 [label="2"]
+  fn1 -> fn5 [label="3" fontcolor="grey"]
+}
+`;
+    /*
+digraph G {
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    a0 -> a1 -> a2 -> a3;
+    label = "process #1";
+  }
+  subgraph cluster_1 {
+    node [style=filled];
+    b0 -> b1 -> b2 -> b3;
+    label = "process #2";
+    color=blue
+  }
+  start -> a0;
+  start -> b0;
+  a1 -> b3;
+  b2 -> a3;
+  a3 -> a0;
+  a3 -> end;
+  b3 -> end;
+  start [shape=Mdiamond];
+  end [shape=Msquare];
+}
+     */
+
+    function renderGraph() {
+        render(d3.select('#graph'));
+    }
+
+    function render(graph) {
+        var width = graph.node().clientWidth - 4; /* check above (x) */
+        var height = graph.node().clientHeight - 4; /* check above (x) */
+
+        graph.graphviz()
+            .width(width)
+            .height(height)
+            .fit(true)
+            .renderDot(graphSrc)
+            .on("end", setupClick);
+    }
+
+    function setupClick() {
+        nodes = d3.selectAll('.node,.edge');
+        nodes
+            .on("click", function () {
+                var title = d3.select(this).selectAll('title').text().trim();
+                var text = d3.select(this).selectAll('text').text();
+                var id = d3.select(this).attr('id');
+                var class1 = d3.select(this).attr('class');
+                dotElement = title.replace('->',' -> ');
+                console.log('Element id="%s" class="%s" title="%s" text="%s" dotElement="%s"', id, class1, title, text, dotElement);
+            });
+    }
+
+  </script>
+</body>
+
+</html>
