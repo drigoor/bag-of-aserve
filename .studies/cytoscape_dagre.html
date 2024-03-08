@@ -4,9 +4,9 @@
     <meta charset=utf-8 />
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 
-    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+    <script src="cytoscape.min.js"></script>
 
-    <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script>
+    <script src="dagre.js"></script>
     <script src="cytoscape-dagre.js"></script>
 
     <script src="popper.min.js"></script>
@@ -167,39 +167,39 @@
 
           });
 
-          var makeDiv = function(text){
-                var div = document.createElement('div');
+          // var makeDiv = function(text){
+          //       var div = document.createElement('div');
 
-                div.classList.add('popper-div');
-                div.innerHTML = text;
-                document.body.appendChild( div );
+          //       div.classList.add('popper-div');
+          //       div.innerHTML = text;
+          //       document.body.appendChild( div );
 
-                return div;
-            };
+          //       return div;
+          //   };
 
-          var a = cy.getElementById('n7');
-          // var a = cy.getElementById('somehting-with-a-big-name____2222');
+          // var a = cy.getElementById('n7');
+          // // var a = cy.getElementById('somehting-with-a-big-name____2222');
 
-          var popperA = a.popper({
-              content: function(){ return makeDiv('Sticky position div'); }
-          });
+          // var popperA = a.popper({
+          //     content: function(){ return makeDiv('Sticky position div'); }
+          // });
 
-          var updateA = function(){
-              popperA.update();
-          };
+          // var updateA = function(){
+          //     popperA.update();
+          // };
 
-          a.on('position', updateA);
-          cy.on('pan zoom resize', updateA);
-
-
-          cy.on('tap', 'node', function (evt) {
-              console.log(evt.target.id())
-          });
+          // a.on('position', updateA);
+          // cy.on('pan zoom resize', updateA);
 
 
-          cy.nodes().lock();
+          // cy.on('tap', 'node', function (evt) {
+          //     console.log(evt.target.id())
+          // });
 
-          cy.$('#n4___move_me...').unlock();
+
+          // cy.nodes().lock();
+
+          // cy.$('#n4___move_me...').unlock();
       });
 
     </script>

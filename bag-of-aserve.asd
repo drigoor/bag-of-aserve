@@ -4,5 +4,5 @@
                #:aserve
                #:cl-who)
   :components ((:file "package")
-               (:file "pratical-common-lisp")
+               (:file "pratical")
                (:file "main")))
