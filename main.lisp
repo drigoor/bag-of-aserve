@@ -1,45 +1,6 @@
 (in-package #:bag-of-aserve)
 
 
-(setf (who:html-mode) :html5)
-
-
-(defparameter *cwd*
-  "d:/projects/lisp/bag-of-aserve")
-
-
-(defparameter *static-data*
-  '("bulma.css"
-    "htmx.js"
-    "cytoscape.js"
-    "styles.css"
-    "cytoscape-dagre.js"
-    "dagre.js"))
-
-
-(defun retv-content-type (file)
-  (cond ((search ".css" file)
-         "text/css")
-        ((search ".js" file)
-         "text/javascript")
-        (t
-         (error "Unknown content type for ~a" file))))
-
-
-(defun publish-static-data (data data-pathname)
-  (loop for path in data
-        do (net.aserve:publish-file :path (concatenate 'string "/vendor/" path)
-                                    :content-type (retv-content-type path)
-                                    :file (concatenate 'string data-pathname "/static/" path))))
-
-
-(defun start-server (&key (port 9090) (static-data *static-data*) (cwd *cwd*))
-  (net.aserve:publish-file :path "/favicon.ico" :file (concatenate 'string cwd "/favicon.png") :content-type "image/png")
-  (publish-static-data static-data cwd)
-  (net.aserve::debug-on :notrap)
-  (net.aserve:start :port port))
-
-
 (define-url-function index (request)
   (html*
     (:html
@@ -55,7 +16,78 @@
        (:script :src "/vendor/htmx.js" :type "text/javascript"))
       (:body
        (:div :id "cy")
-       (:script (cl-who::str (uiop:read-file-string (concatenate 'string *cwd* "/code2.js"))))))))
+       (:script
+        (who:str
+         (multiple-value-bind (nodes edges)
+             (->cytoscape '("root12" ("99999APOAWaw" "sa9iis9" "12adas" "12asdiui9" "21asjkdh") "another.thing" ("12adas" "root12" "as" "asdasdasld hasudh " "09a8oyihj")))
+           (cytoscape.template nodes edges))))))))
+
+
+
+
+
+
+
+#+nil
+(defun all-callees (src-symbol)
+  (is-symbol-p src-symbol)
+  (let* ((callees (mapcar #'first (slynk-backend:list-callees src-symbol)))
+         (src (symbol-name src-symbol))
+         (nodes (format nil "nodes: [~%"))
+         (edges (format nil "edges: [~%")))
+    (setf nodes (format nil "~a    ~a,~%" nodes (->node src)))
+    (dolist (dst callees)
+      (setf dst (symbol-name dst))
+      (setf nodes (format nil "~a    ~a,~%" nodes (->node dst)))
+      (setf edges (format nil "~a    ~a,~%" edges (->edge src dst))))
+    (setf nodes (format nil "~a]" nodes))
+    (setf edges (format nil "~a]" edges))
+    (values nodes
+            edges)))
+
+
+#+nil
+(defun all-callees (src-symbol)
+  (is-symbol-p src-symbol)
+  (let* ((callees (mapcar #'first (slynk-backend:list-callees src-symbol)))
+         (src (symbol-name src-symbol))
+         (nodes (format nil "nodes: [~%"))
+         (edges (format nil "edges: [~%")))
+    (setf nodes (format nil "~a    ~a,~%" nodes (->node src)))
+    (dolist (dst callees)
+      (setf dst (symbol-name dst))
+      (setf nodes (format nil "~a    ~a,~%" nodes (->node dst)))
+      (setf edges (format nil "~a    ~a,~%" edges (->edge src dst))))
+    (setf nodes (format nil "~a]" nodes))
+    (setf edges (format nil "~a]" edges))
+    (values nodes
+            edges)))
+
+
+#+nil
+(let ((src-symbol '->cytoscape))
+  ;; (sort (slynk-backend:list-callees src-symbol)
+  ;;       #'(lambda (x)
+  ;;           ))
+  (third (second (first (slynk-backend:list-callees src-symbol))))
+  )
+
+
+#+nil
+(format t "~a~%" (multiple-value-list (all-callees "root" '("adas" "asdiui9" "asjkdh"))))
+
+
+#+nil
+(format t "~a~%" (multiple-value-list (all-callees '->cytoscape)))
+
+#+nil
+(mapcar #'first (slynk-backend:list-callees 'start-server))
+
+#+nil
+(all-callees 'start-server)
+
+#+nil
+(all-callees "start-server")
 
 
 #+nil

@@ -5,4 +5,6 @@
                #:cl-who)
   :components ((:file "package")
                (:file "pratical")
+               (:file "server")
+               (:file "cytoscape")
                (:file "main")))
